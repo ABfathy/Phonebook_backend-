@@ -3,7 +3,9 @@ const app = express()
 
 app.use(express.json())
 
-const phoneBookList = [
+
+// list is not a const value remember that or else you wont be able to modify it 
+let phoneBookList = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -34,6 +36,7 @@ app.get("/api/persons", (request , response) =>{
 
 app.get("/api/persons/:id",(request,response)=>{
 
+    //dont forget params before id
     personId = request.params.id
     person = phoneBookList.find(p => personId === p.id)
 
@@ -46,8 +49,16 @@ app.get("/api/persons/:id",(request,response)=>{
         response.statusMessage = "Person not found in phonebook"
         response.status(404).end()
     }
-
 }) 
+
+app.delete("/api/persons/:id",(request,response)=>{
+
+    personId = request.params.id
+    phoneBookList = phoneBookList.filter(p => personId !== p.id)
+
+    response.status(204).end()
+
+})
 
 app.get("/info", (request , response) =>{
 
