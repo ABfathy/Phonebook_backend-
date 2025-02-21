@@ -28,6 +28,49 @@ let phoneBookList = [
     }
 ]
 
+const generateId = () => {
+
+    return String(Math.floor(Math.random() * 99999))
+
+}
+
+app.post("/api/persons", (request , response)=>{
+
+    const body = request.body
+
+    if(!body.name || !body.number){
+
+        return response.status(400).json({
+            error: "Complete all required fields"
+        })
+
+    } else if (phoneBookList.some(person => person.name === body.name)){
+
+        return response.status(400).json({
+            error: "name is already in phonebook"
+        })
+
+    } else {
+
+    const person = {
+
+        "id": generateId(),
+        "name": body.name,
+        "number": body.number
+
+    } 
+
+    phoneBookList = phoneBookList.concat(person)
+
+    response.json(person)
+
+}
+
+    
+})
+
+
+
 app.get("/api/persons", (request , response) =>{
 
     response.json(phoneBookList)
