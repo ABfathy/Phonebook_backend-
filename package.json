@@ -21,11 +21,12 @@
     "build:ui": "rm -rf dist && cd ~/repos/main-FSO/part-2/phoneBook && npm run build && cp -r dist ~/repos/Phonebook_backend-",
     "deploy": "fly deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod":"fly logs"
+    "logs:prod": "fly logs"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "mongoose": "^8.11.0",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
