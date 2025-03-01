@@ -1,5 +1,8 @@
+require('dotenv').config()
+
 const express = require('express')
 const morgan = require('morgan')
+const Person = require('./models/phonebook')
 const cors = require('cors')
 
 const app = express()
@@ -13,39 +16,6 @@ app.use(cors())
 app.use(express.static('dist'))
 
 
-
-
-
-// list is not a const value remember that or else you wont be able to modify it 
-let phoneBookList = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
-const generateId = () => {
-
-    return String(Math.floor(Math.random() * 99999))
-
-}
-
 app.post("/api/persons", (request , response)=>{
 
     const body = request.body
@@ -56,69 +26,53 @@ app.post("/api/persons", (request , response)=>{
             error: "Complete all required fields"
         })
 
-    } else if (phoneBookList.some(person => person.name === body.name)){
+    }  else {
 
-        return response.status(400).json({
-            error: "name is already in phonebook"
-        })
+    const person = new Person({
 
-    } else {
-
-    const person = {
-
-        "id": generateId(),
         "name": body.name,
         "number": body.number
 
-    } 
+    }) 
 
-    phoneBookList = phoneBookList.concat(person)
+    person.save().then(savedPerson => response.json(savedPerson))
    
-    response.json(person)
-
 }
 
     
 })
 
-
-
 app.get("/api/persons", (request , response) =>{
-
-    response.json(phoneBookList)
+   
+    Person.find({}).then(person => response.json(person))
 
 })
 
 app.get("/api/persons/:id",(request,response)=>{
 
-    //dont forget params before id
-    personId = request.params.id
-    person = phoneBookList.find(p => personId === p.id)
+    Person.findById(request.params.id)
+        .then(person => response.json(person))
+        .catch(() => {
+            response.statusMessage = "Person not found in phonebook"
+            response.status(404).end()})
 
-    if(person){
-
-    response.json(person)
-
-    } else {
-
-        response.statusMessage = "Person not found in phonebook"
-        response.status(404).end()
-    }
 }) 
 
 app.delete("/api/persons/:id",(request,response)=>{
 
-    personId = request.params.id
-    phoneBookList = phoneBookList.filter(p => personId !== p.id)
+    Person.findByIdAndDelete(request.params.id).then(() =>{
+        
+        response.status(204).end()
 
-    response.status(204).end()
-
+    })
+    
+    
 })
 
 app.get("/info", (request , response) =>{
 
     response.send(
-    `<p>Phonebook has info for ${phoneBookList.length} people</p>
+    `<p>Phonebook has info for people</p>
     <p>${Date()}<p>`
     )
 })
@@ -130,7 +84,7 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint)
 
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 
 app.listen(PORT,()=>{
 
