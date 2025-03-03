@@ -98,10 +98,18 @@ app.delete("/api/persons/:id",(request,response,next)=>{
 
 app.get("/info", (request , response) =>{
 
-    response.send(
-    `<p>Phonebook has info for people</p>
-    <p>${Date()}<p>`
-    )
+    Person
+    .find({})
+        .then(persons => {
+            response.send(`
+                <p>Phonebook has info for ${persons.length} people</p>
+                <p>${new Date()}</p>
+                `)
+        })
+        .catch(error =>{
+            response.status(500).send("<p>could not fetch Phonebook data")
+        })
+          
 })
 
 const unknownEndpoint = (request, response) => {
