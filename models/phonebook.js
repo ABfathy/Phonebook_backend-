@@ -6,41 +6,40 @@ const url = process.env.MONGODB_URI
 
 
 mongoose.connect(url)
-    .then(result => {
+  .then(() => {
 
-        console.log("connected to database");
-        
-    })
-    .catch(error =>{
-        console.log(`error while connecting: ${error}`)
-    })
+    console.log('connected to database')
+
+  })
+  .catch(error => {
+    console.log(`error while connecting: ${error}`)
+  })
 
 
 const personSchema = new mongoose.Schema({
-    name: {
-
-        type: String,
-        minLength: [3, "Name must be at least 3 characters long"], 
-        required: true
+  name: {
+    type: String,
+    minLength: [3, 'Name must be at least 3 characters long'],
+    required: true
+  },
+  number: {
+    type: String,
+    minLength: [8,'number must be at least 8 digits long'],
+    validate : {
+      validator: (v) => /^\d{2,3}-\d+$/.test(v),
+      message : props => `${props.value} is not a valid phone number format!`
     },
-    number: {
-        type: String,
-        minLength: [8,"number must be at least 8 digits long"],
-        validate : {  
-            validator: (v) => /^\d{2,3}-\d+$/.test(v), 
-            message : props => `${props.value} is not a valid phone number format!`
-        },
-        required: true
-    }
+    required: true
+  }
 })
 
 personSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-      returnedObject.id = returnedObject._id.toString()
-      delete returnedObject._id
-      delete returnedObject.__v
-    }
-  })
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
 
 
 
